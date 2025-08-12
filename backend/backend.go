@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
+
+	"github.com/gorilla/mux"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -22,6 +25,7 @@ type App struct{
 	connection *sql.DB
 	once sync.Once
 	Port string
+	Router *mux.Router
 }
 func(db *App) InitDB(){
 	db.once.Do(func(){
@@ -70,10 +74,14 @@ func init(){
 	Server=&App{Port: "3000"}
 	Server.InitDB()
 	Server.GetDBConnection()
+  Server.Router = mux.NewRouter()
 }
 
 func Run(addr string){
-	 http.HandleFunc("/products",GetProducts)
+	 Server.Router.HandleFunc("/products",GetProducts).Methods("GET")
+	 Server.Router.HandleFunc("/products/{id}",GetProduct).Methods("GET")
+	 Server.Router.HandleFunc("/products",HandlePost).Methods("POST")
+	 http.Handle("/",Server.Router)
 	 fmt.Println("Server listening on port "+Server.Port)
 	 log.Fatal(http.ListenAndServe(addr,nil))
 }
@@ -82,4 +90,23 @@ func GetProducts(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(Server.GetProducts())
 }
 
+func GetProduct(w http.ResponseWriter, r *http.Request){
+	vars:=mux.Vars(r)
+
+	id,ok:=vars["id"]
+
+	if !ok{
+		log.Println("Id does not exist")
+	}
+	intId, err:=strconv.Atoi(id)
+	if err != nil {
+		log.Println(err.Error())
+	}
+  product:=Server.GetProduct(intId)
+	json.NewEncoder(w).Encode(product)
+}
+
+func HandlePost(w http.ResponseWriter, r *http.Request){
+	json.NewEncoder(w).Encode("This is a post end point haha")
+}
 
