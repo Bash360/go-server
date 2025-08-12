@@ -123,6 +123,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request){
 		log.Println(err.Error())
 	}
   product:=Server.GetProduct(intId)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
 }
 
@@ -130,15 +131,12 @@ func CreateProduct(w http.ResponseWriter, r *http.Request){
 	var product Product
 	err :=json.NewDecoder(r.Body).Decode(&product)
 
-	if err != nil{
-		json.NewEncoder(w).Encode(err.Error())
-	}
-
 	newProduct,err := Server.CreateProduct(&product); 
 	if  err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
     return
 }
+  w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(newProduct)
 }
 
