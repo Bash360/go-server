@@ -29,9 +29,10 @@ type App struct{
 	Port string
 	Router *mux.Router
 }
-func(db *App) InitDB(){
+func(db *App) Init(){
 	db.once.Do(func(){
 		con, err := sql.Open("sqlite3","./practiceit.db")
+		Server.Router = mux.NewRouter()
 	if err!=nil{
 		log.Fatal(err.Error())
 	}
@@ -92,9 +93,8 @@ func(app *App)GetProducts()[]Product{
 var  Server *App
 func init(){
 	Server=&App{Port: "3000"}
-	Server.InitDB()
-	Server.GetDBConnection()
-  Server.Router = mux.NewRouter()
+	Server.Init()
+ 
 }
 
 func Run(addr string){
