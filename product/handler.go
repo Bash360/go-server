@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"rest-api/app"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -22,7 +21,7 @@ func RegisterRoutes(router *mux.Router){
 }
 
 func GetProducts(w http.ResponseWriter, r *http.Request){
-	helper.WithJSON(w,http.StatusOK,Product{}.GetProducts(app.Server.Connection))
+	helper.WithJSON(w,http.StatusOK,getProducts())
 }
 
 func GetProduct(w http.ResponseWriter, r *http.Request){
@@ -39,7 +38,10 @@ func GetProduct(w http.ResponseWriter, r *http.Request){
 		log.Println(err.Error())
 		helper.WithError(w,http.StatusBadRequest,err.Error())
 	}
-  product:=Product{}.GetProduct(intId,app.Server.Connection)
+  product, err:=getProduct(intId)
+	if err!=nil{
+		helper.WithError(w,http.StatusNotFound,err.Error())
+	}
 	helper.WithJSON(w,http.StatusOK,product)
 }
 
@@ -47,7 +49,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request){
 	var product Product
 	err :=json.NewDecoder(r.Body).Decode(&product)
 
-	newProduct,err := Product{}.CreateProduct(&product, app.Server.Connection) 
+	newProduct,err := addProduct(&product)
 	if  err != nil {
 		log.Println(err.Error())
 

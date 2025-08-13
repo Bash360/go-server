@@ -34,7 +34,7 @@ func(pr Product)GetProducts(connection *sql.DB)[]Product{
  }
  return products
 }
- func (pr Product) GetProduct(id int,connection *sql.DB)Product{
+ func (pr Product) GetProduct(id int,connection *sql.DB)(Product, error){
 	var p Product
    row:=connection.QueryRow(`SELECT id, name, inventory,
 	  price, productCode, status FROM products where id=?`,id)
@@ -42,8 +42,9 @@ func(pr Product)GetProducts(connection *sql.DB)[]Product{
 
 	if err != nil {
 		log.Println("User doesn't exist",err)
+		return Product{}, err
 	}
- return p
+ return p, nil
  }
 
  func (pr Product)CreateProduct(p *Product,connection *sql.DB)(Product,error){
