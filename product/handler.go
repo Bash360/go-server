@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 
 	_ "github.com/mattn/go-sqlite3"
+	"rest-api/helper"
 )
 
 
@@ -21,8 +22,7 @@ func RegisterRoutes(router *mux.Router){
 }
 
 func GetProducts(w http.ResponseWriter, r *http.Request){
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(Product{}.GetProducts(app.Server.Connection))
+	helper.WithJSON(w,http.StatusOK,Product{}.GetProducts(app.Server.Connection))
 }
 
 func GetProduct(w http.ResponseWriter, r *http.Request){
@@ -32,14 +32,15 @@ func GetProduct(w http.ResponseWriter, r *http.Request){
 
 	if !ok{
 		log.Println("Id does not exist")
+		helper.WithError(w,http.StatusNotFound,"Id does not exist")
 	}
 	intId, err:=strconv.Atoi(id)
 	if err != nil {
 		log.Println(err.Error())
+		helper.WithError(w,http.StatusBadRequest,err.Error())
 	}
   product:=Product{}.GetProduct(intId,app.Server.Connection)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(product)
+	helper.WithJSON(w,http.StatusOK,product)
 }
 
 func CreateProduct(w http.ResponseWriter, r *http.Request){
@@ -48,9 +49,10 @@ func CreateProduct(w http.ResponseWriter, r *http.Request){
 
 	newProduct,err := Product{}.CreateProduct(&product, app.Server.Connection) 
 	if  err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
+
+		helper.WithError(w,http.StatusInternalServerError,err.Error())
     return
 }
-  w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(newProduct)
+    helper.WithJSON(w,http.StatusCreated,newProduct)
 }
