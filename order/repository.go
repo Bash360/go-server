@@ -16,9 +16,9 @@ type Order struct {
 }
 
 type OrderItem struct {
-	Order_id   int `json:orderId`
-	Product_id int `json:productId`
-	Quantity   int `json:quantity`
+	Order_id   int `json:"orderId"`
+	Product_id int `json:"productId"`
+	Quantity   int `json:"quantity"`
 }
 
 func (order Order) findAll(db *sql.DB) ([]Order, error) {
