@@ -2,7 +2,9 @@ package app
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"net/http"
 	"sync"
 
 	"github.com/gorilla/mux"
@@ -33,6 +35,18 @@ func(db *App)GetDBConnection() *sql.DB{
 	return db.Connection
 }
 
+func InitializeRoutes(registers ...func(router *mux.Router)){
+	for _, register:= range registers{
+		register(Server.Router)
+	}
+	
+}
+
+func Run(){
+	 http.Handle("/",Server.Router)
+	 fmt.Println("Server listening on port "+Server.Port)
+	 log.Fatal(http.ListenAndServe("localhost:"+Server.Port,nil))
+}
 var  Server *App
 
 func init(){
@@ -41,3 +55,4 @@ func init(){
  
  
 }
+

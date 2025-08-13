@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
 	"rest-api/app"
-	"rest-api/product"
+	p "rest-api/product"
 
 	_ "github.com/gorilla/mux"
 )
@@ -14,10 +11,6 @@ import (
 
 
 func main(){
-   product.RegisterRoutes(app.Server.Router)
-	 http.Handle("/",app.Server.Router)
-	 fmt.Println("Server listening on port "+app.Server.Port)
-	 log.Fatal(http.ListenAndServe("localhost:"+app.Server.Port,nil))
- 
-
+	 app.InitializeRoutes(p.RegisterRoutes)
+   app.Run()
 }
