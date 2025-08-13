@@ -14,7 +14,7 @@ import (
 
 
 
-func Run(router *mux.Router){
+func RegisterRoutes(router *mux.Router){
 	 router.HandleFunc("/products",GetProducts).Methods("GET")
 	 router.HandleFunc("/products/{id}",GetProduct).Methods("GET")
 	 router.HandleFunc("/products",CreateProduct).Methods("POST")
