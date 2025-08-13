@@ -9,8 +9,8 @@ func getAll() []Product {
 }
 
 func getOne(id int) (Product, error) {
-
-	p, err := productRepository.findOne(id, app.Server.Connection)
+  pPointer:=&Product{Id:id}
+	p, err := pPointer.findOne(app.Server.Connection)
 	if err != nil {
 		return Product{}, err
 	}

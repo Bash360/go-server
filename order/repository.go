@@ -67,10 +67,10 @@ func (o *Order) findAllItems(db *sql.DB) error {
 	return nil
 }
 
-func (o *Order) findOne(id int, db *sql.DB) error {
+func (o *Order) findOne(db *sql.DB) error {
 	db.QueryRow(`SELECT customerName, total, 
 	status FROM orders 
-	where order_id =? `, id).Scan(&o.ID, &o.Status, &o.CustomerName, &o.Total)
+	where order_id =? `, o.ID).Scan(&o.ID, &o.Status, &o.CustomerName, &o.Total)
 
 	err := o.findAllItems(db)
 	if err != nil {

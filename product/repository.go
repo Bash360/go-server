@@ -34,10 +34,10 @@ func (pr Product) findAll(connection *sql.DB) []Product {
 	}
 	return products
 }
-func (pr Product) findOne(id int, connection *sql.DB) (Product, error) {
+func (pr *Product) findOne(connection *sql.DB) (Product, error) {
 	var p Product
 	row := connection.QueryRow(`SELECT id, name, inventory,
-	  price, productCode, status FROM products where id=?`, id)
+	  price, productCode, status FROM products where id=?`, pr.Id)
 	err := row.Scan(&p.Id, &p.Name, &p.Inventory, &p.Price, &p.ProductCode, &p.Status)
 
 	if err != nil {

@@ -13,7 +13,8 @@ func getAll() ([]Order, error) {
 }
 
 func getOne(id int) (Order, error) {
-	err := orderRepo.findOne(id, app.Server.Connection)
+	order:=&Order{ID: id}
+	err := order.findOne(app.Server.Connection)
 	return orderRepo, err
 }
 
