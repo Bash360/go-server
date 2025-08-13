@@ -4,61 +4,61 @@ import (
 	"database/sql"
 	"log"
 
-_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-type Product struct{
-	Id        int `json:"_"`
-	Name      string `json:"name"`
-	Inventory int    `json:"inventory"`
-	Price     int    `json:"price"`
+type Product struct {
+	Id          int    `json:"_"`
+	Name        string `json:"name"`
+	Inventory   int    `json:"inventory"`
+	Price       int    `json:"price"`
 	ProductCode string `json:"productCode"`
-	Status      string `json:"status"`   
+	Status      string `json:"status"`
 }
 
-func(pr Product)GetProducts(connection *sql.DB)[]Product{
+func (pr Product) findAll(connection *sql.DB) []Product {
 	var products []Product
- rows, err := connection.Query("SELECT id, name, inventory, price, productCode,status FROM products")
- if err != nil {
-	log.Fatal(err.Error())
- }
- defer rows.Close()
+	rows, err := connection.Query("SELECT id, name, inventory, price, productCode,status FROM products")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer rows.Close()
 
- for rows.Next(){
-	var p Product
+	for rows.Next() {
+		var p Product
 
-	rows.Scan(&p.Id, &p.Name, &p.Inventory, &p.Price,
-		 &p.ProductCode,  &p.Status)
-	products=append(products, Product{p.Id,
-		p.Name,p.Inventory,p.Price,p.ProductCode, p.Status})
- }
- return products
+		rows.Scan(&p.Id, &p.Name, &p.Inventory, &p.Price,
+			&p.ProductCode, &p.Status)
+		products = append(products, Product{p.Id,
+			p.Name, p.Inventory, p.Price, p.ProductCode, p.Status})
+	}
+	return products
 }
- func (pr Product) GetProduct(id int,connection *sql.DB)(Product, error){
+func (pr Product) findOne(id int, connection *sql.DB) (Product, error) {
 	var p Product
-   row:=connection.QueryRow(`SELECT id, name, inventory,
-	  price, productCode, status FROM products where id=?`,id)
-	err:= row.Scan(&p.Id,&p.Name,&p.Inventory,&p.Price, &p.ProductCode, &p.Status)
+	row := connection.QueryRow(`SELECT id, name, inventory,
+	  price, productCode, status FROM products where id=?`, id)
+	err := row.Scan(&p.Id, &p.Name, &p.Inventory, &p.Price, &p.ProductCode, &p.Status)
 
 	if err != nil {
-		log.Println("User doesn't exist",err)
+		log.Println("User doesn't exist", err)
 		return Product{}, err
 	}
- return p, nil
- }
+	return p, nil
+}
 
- func (pr Product)CreateProduct(p *Product,connection *sql.DB)(Product,error){
-	query:=`INSERT INTO products(productCode,name,inventory,price, status)
+func (p *Product) save(connection *sql.DB) (Product, error) {
+	query := `INSERT INTO products(productCode,name,inventory,price, status)
 	 VALUES(?,?,?,?,?)`
-	result, err:=connection.Exec(query,p.ProductCode,p.Name,p.Inventory,p.Price, p.Status)
-	if err != nil{
+	result, err := connection.Exec(query, p.ProductCode, p.Name, p.Inventory, p.Price, p.Status)
+	if err != nil {
 		log.Println(err.Error())
 	}
- id, err:= result.LastInsertId()
- if err !=nil{
-	log.Println(err.Error())
-	return Product{} ,err
- }
- p.Id=int(id)
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Println(err.Error())
+		return Product{}, err
+	}
+	p.Id = int(id)
 	return *p, nil
- }
+}
